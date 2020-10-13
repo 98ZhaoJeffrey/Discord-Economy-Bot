@@ -103,6 +103,7 @@ class Accounts(commands.Cog):
                     dbUser['dropDate'] = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
                     await ctx.send(f"Here is your daily drop of 500 credits {user.mention}")
                     dbUser['balance'] += 500
+                    userbridge.Update(dbUser)
                 else:
                     #Take 1 day worth of time and subtract the amount of time that has already passed and convert it to seconds
                     seconds = (timedelta(days=1) - timeDiff).total_seconds()
