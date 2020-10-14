@@ -22,13 +22,7 @@ coin = [
         "🔴", 
         "🔵" 
         ]
-Emoji = {
-        "yes":"🇾",
-        "no":"🇳",
-        "dice":"🎲",
-        "stop":"🛑",
-        "question": "❓"
-        }
+question = "❓"
 
 class User():
     def __init__(self, game):
@@ -59,8 +53,7 @@ class Gamble(commands.Cog):
             await ctx.send(embed=discord.Embed(
                 title = f"Slots | User: {user}",
                 description = "Bet some money and hope that the slots machine spits out a winner",
-                color=0xfbff05,
-                thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                color=0xfbff05
                 ))
         else:
             try:
@@ -68,11 +61,10 @@ class Gamble(commands.Cog):
                 dbUser['balance'] -= bet
                 message = await ctx.send(embed=discord.Embed(
                     title = f"Slots | User: {user}",
-                    description = "Slots spinning...\n|" + (f" {Emoji['question']} ")*3 + "|",
-                    color=0xfbff05,
-                    thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                    description = "Slots spinning...\n|" + (f" {question} ")*3 + "|",
+                    color=0xfbff05
                     ))
-                outcome = [Emoji['question']]*3
+                outcome = [question]*3
                 for i in range(3):
                     outcome[i] = slots[random.choice(list(slots))]
                     if i == 2:
@@ -94,16 +86,14 @@ class Gamble(commands.Cog):
                         await message.edit(embed=discord.Embed(
                             title = f"Slots | User: {user}",
                             description = f"Slots spun\n| {outcome[0]} {outcome[1]} {outcome[2]} |\n" + outcomeString,
-                            color=0xfbff05,
-                            thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                            color=0xfbff05
                         ))
                         dbUser['balance'] += multiplier*bet
                     else: 
                         await message.edit(embed=discord.Embed(
                             title = f"Slots | User: {user}",
                             description = f"Slots spinning...\n| {outcome[0]} {outcome[1]} {outcome[2]} |",
-                            color=0xfbff05,
-                            thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                            color=0xfbff05
                         ))
                     sleep(0.5)
                 userbridge.Update(dbUser)
@@ -118,8 +108,7 @@ class Gamble(commands.Cog):
             await ctx.send(embed=discord.Embed(
                 title = "Roulette",
                 description = "Pick a number or a color and hope that it matches your bet. All even numbers are red except for 0 and all odd numbers are black except for 37. 0 and 37 are green",
-                colour = 0x05ff2f,
-                thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn"
+                colour = 0x05ff2f
             ))
         else:
             try:
@@ -128,8 +117,7 @@ class Gamble(commands.Cog):
                 message = await ctx.send(embed=discord.Embed(
                     title = "Roulette",
                     description = "Rolling the roulette wheel...",
-                    colour = 0x05ff2f,
-                    thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn"
+                    colour = 0x05ff2f
                 ))
                 number = random.randint(0,37)
                 sleep(1)
@@ -152,9 +140,8 @@ class Gamble(commands.Cog):
                 await message.edit(embed=discord.Embed(
                     title = f"Roulette results|{user}",
                     description = description,
-                    colour = 0x05ff2f,
-                    thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn")
-                )
+                    colour = 0x05ff2f
+                ))
                 userbridge.Update(dbUser)
             except:
                 await ctx.send(f"There was an error, try again later")
@@ -167,8 +154,7 @@ class Gamble(commands.Cog):
             await ctx.send(embed=discord.Embed(
                 title = "Coin flip",
                 description = "Pick either the red or blue circle and hope that the coin lands on your side. It's double or nothing",
-                colour = 0x8000ff,
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                colour = 0x8000ff
                 ))
         else:
             try:
@@ -184,9 +170,8 @@ class Gamble(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title = f"Coin flip|{user}",
                     description = f"Flip result: {coin[flip]} " + outcomeString,
-                    colour = 0x8000ff,
-                    thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish')
-                    )
+                    colour = 0x8000ff
+                    ))
                 userbridge.Update(dbUser)
             except:
                 await ctx.send(f"There was an error, try again later")
@@ -198,8 +183,7 @@ class Gamble(commands.Cog):
             await ctx.send(embed=discord.Embed(
                 title = "Crash",
                 description = "The multiplier will contiously rise which is how much you will get in return unless it crashs before you stop it. Max multipler is 30",
-                colour = 0x05b4ff,
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                colour = 0x05b4ff
                 ))
         else:
             try:
@@ -208,8 +192,7 @@ class Gamble(commands.Cog):
                 message = await ctx.send(embed=discord.Embed(
                         title = f"Crash|{user}",
                         description = "Starting crash...",
-                        colour = 0x05b4ff,
-                        thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                        colour = 0x05b4ff
                     ))
                 crasher = random.randint(1,30)
                 iterator = 0
@@ -220,15 +203,13 @@ class Gamble(commands.Cog):
                     await message.edit(embed=discord.Embed(
                         title = f"Crash|{user}",
                         description = f"Multiplier: {iterator}",
-                        colour = 0x05b4ff,
-                        thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                        colour = 0x05b4ff
                     ))
                     if (iterator == limit):
                         await message.edit(embed=discord.Embed(
                                 title = f"Crash|{user}",
                                 description = f"Congrats, you've won {bet*limit} credits. It was supposed to crash at {crasher}. Please come again!",
-                                colour = 0x05b4ff,
-                                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                                colour = 0x05b4ff
                             ))
                         dbUser['balance'] += bet*limit
                         break
@@ -236,8 +217,7 @@ class Gamble(commands.Cog):
                         await message.edit(embed=discord.Embed(
                                 title = f"Crash|{user}",
                                 description = f"Sorry, but the crasher crashed at {crasher} this time",
-                                colour = 0x05b4ff,
-                                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                                colour = 0x05b4ff
                             ))
                         break
                 userbridge.Update(dbUser)
