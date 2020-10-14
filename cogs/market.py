@@ -79,8 +79,8 @@ class Market(commands.Cog):
                     title = f"Items sold by {user}",
                     description = embedString,
                     color=0xdd12f8,
-                    thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
                 )
+                message.set_thumbnail(url='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish') 
                 await ctx.send(embed=message)
             except:
                  await ctx.send('There was an error')
@@ -96,8 +96,8 @@ class Market(commands.Cog):
                     title = f"Items sold with keyword: {name}",
                     description = embedString,
                     color=0xdd12f8,
-                    thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
                 )
+                message.set_thumbnail(url='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish') 
                 await ctx.send(embed=message)
             except:
                  await ctx.send('There was an error')
