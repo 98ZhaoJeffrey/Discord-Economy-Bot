@@ -1,25 +1,52 @@
+from random import randint
 import discord
 from discord.ext import commands
-from random import random, randint
+import random 
+from random import randint
 from time import sleep
+import traceback
+import sys
+sys.path.append(sys.path[0] + "/..")
+from databridge import userBridge
+
+userbridge = userBridge()
 
 slots = {
         "diamond": "💎",
         "bag": "💰",
-        "redHeart": "🧡",
-        "greenHeart": "💚"
+        "red": "🧡",
+        "green":"💚"
         } 
         
-flips = {
-        "redCircle": "🔴", 
-        "blueCircle": "🔵" 
-        }
+coin = [
+        "🔴", 
+        "🔵" 
+        ]
 Emoji = {
         "yes":"🇾",
         "no":"🇳",
         "dice":"🎲",
-        "stop":"🛑"
+        "stop":"🛑",
+        "question": "❓"
         }
+
+class User():
+    def __init__(self, game):
+        self.game = game
+
+class Crash():
+    def __init__(self, user, bet):
+        self.user = user
+        self.bet = bet
+        self.multiplier = randint(10,300)
+        self.increment = 0
+        self.run = True
+    def run(self):
+        self.increment +=0.1
+        sleep(0.1)
+    def stop(self):
+        if(self.run != True):
+            self.run = False
 
 class Gamble(commands.Cog):
     def __init__(self, bot):
@@ -29,153 +56,194 @@ class Gamble(commands.Cog):
     async def slots(self, ctx, bet: int = None):
         user = ctx.message.author
         if(bet == None):
-                message = discord.Embed(
-                title = "Crash",
-                description = """Bet some money and hope that the slots machine spits out a winner""",
-                colour = discord.Colour.yellow()
-                )
+            await ctx.send(embed=discord.Embed(
+                title = f"Slots | User: {user}",
+                description = "Bet some money and hope that the slots machine spits out a winner",
+                color=0xfbff05,
+                thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                ))
         else:
-            outcome = []
-            for i in range(2):
-                outcome[i] = random.choice(slots)
-            #conditions for winning
+            try:
+                dbUser = userbridge.Get(str(user)).to_dict()
+                dbUser['balance'] -= bet
+                message = await ctx.send(embed=discord.Embed(
+                    title = f"Slots | User: {user}",
+                    description = "Slots spinning...\n|" + (f" {Emoji['question']} ")*3 + "|",
+                    color=0xfbff05,
+                    thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                    ))
+                outcome = [Emoji['question']]*3
+                for i in range(3):
+                    outcome[i] = slots[random.choice(list(slots))]
+                    if i == 2:
+                        outcomeString = ''
+                        multiplier = 0
+                        if ((outcome[0] == outcome[1]) and outcome[1] == outcome[2]):
+                            outcomeString = f'You won '
+                            if outcome[0] == slots['diamond']:
+                                multiplier = 50
+                            elif outcome[0] == slots['bag']:
+                                multiplier = 20
+                            elif outcome[0] == slots['red']:
+                                multiplier = 10
+                            else:
+                                multiplier = 5
+                            outcomeString += f"{multiplier*bet} credits"
+                        else:
+                            outcomeString = "You lost this time, try again later!"
+                        await message.edit(embed=discord.Embed(
+                            title = f"Slots | User: {user}",
+                            description = f"Slots spun\n| {outcome[0]} {outcome[1]} {outcome[2]} |\n" + outcomeString,
+                            color=0xfbff05,
+                            thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                        ))
+                        dbUser['balance'] += multiplier*bet
+                    else: 
+                        await message.edit(embed=discord.Embed(
+                            title = f"Slots | User: {user}",
+                            description = f"Slots spinning...\n| {outcome[0]} {outcome[1]} {outcome[2]} |",
+                            color=0xfbff05,
+                            thumbnail = 'https://www.houseoffun.com/wp-content/themes/hof/images/bg.png'
+                        ))
+                    sleep(0.5)
+                userbridge.Update(dbUser)
+            except:
+                await ctx.send(f"There was an error, try again later")
+                traceback.print_exc()
 
     @commands.command()
-    async def crash(self, ctx, bet: int = None):
+    async def roulette(self, ctx, bet: int = None, betType = None):
         user = ctx.message.author
-        multiplier = randint(10,300)
-        if(bet == None):
-            message = discord.Embed(
-                title = "Crash",
-                description = "The multiplier will contiously rise which is how much you will get in return unless it crashs before you stop it",
-                colour = discord.Colour.blue(),
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
-                )
-            ctx.send(embed=message)
-        else:
-            increment = 0
-            message = discord.Embed(
-                title = "Crash",
-                description = f'Current multiplier | {increment}',
-                colour = discord.Colour.blue(),
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
-                )
-            m = ctx.send(embed=message)
-            while(increment < multiplier):
-                sleep(0.1)
-                await m.ctx.edit(embed = discord.Embed(
-                    title = "Crash",
-                    description = f'Current multiplier | {increment}',
-                    colour = discord.Colour.blue(),
-                    thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish')
-                )
-                increment += 0.1
-            await m.ctx.edit(embed = discord.Embed(
-                title = "Crash",
-                description = f'Current multiplier | CRASHED',
-                colour = discord.Colour.blue(),
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish')
-            )
-            #make the embed message have the multiplier change going up
-            #once it reaches the multiplier, it crashes
-
-    @commands.command
-    async def roulette(self, ctx, bet: int = None, betType: str = None):
-        user = ctx.message.author
-        multiplier = 0
-        message = discord.Embed(
-            title = "Roulette",
-            description = "Pick a number or a color and hope that it matches your bet. All even numbers are red except for 0 and all odd numbers are black except for 37. 0 and 37 are green",
-            colour = discord.Colour.green(),
-            thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn"
-        )
-        if(betType or bet == None):
-            await ctx.send(message)
-        else:
-            Message = discord.Embed(
+        if(betType == None or bet == None):
+            await ctx.send(embed=discord.Embed(
                 title = "Roulette",
-                description = "Rolling the roulette wheel...",
-                colour = discord.Colour.green(),
+                description = "Pick a number or a color and hope that it matches your bet. All even numbers are red except for 0 and all odd numbers are black except for 37. 0 and 37 are green",
+                colour = 0x05ff2f,
                 thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn"
-            )
-            number = random.randint(0,37)
-            #bets (red, black, green, number)(38 numbers)
-            m = await ctx.send(message)
-            sleep(1)
+            ))
+        else:
             try:
-                betType = int(betType)
-                if(betType == number):              
-                    multiplier = 38
-            except TypeError:
-                if(number == 0 or number == 37 and betType.lower() == 'green'):
-                    multiplier = 19
-                elif (number % 2 == 0 and number != 0 and betType.lower() == 'red') or (number % 2 == 1 and number != 37 and betType.lower() == 'black'):
-                    multiplier = 2
-                
-            if(multiplier == 0):
-                description = "Sorry but you lost this time. Better luck next time!"
-            else:
-                description = f'Congrulations you won {bet*multiplier}! Please come again!'
-            m.edit(embed=discord.Embed(
-                title = f"Roulette results|{user}",
-                description = description,
-                colour = discord.Colour.green(),
-                thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn")
-            )
-
-    @commands.command
-    async def roller(self, ctx, bet: int):
+                dbUser = userbridge.Get(str(user)).to_dict()
+                dbUser['balance'] -= bet
+                message = await ctx.send(embed=discord.Embed(
+                    title = "Roulette",
+                    description = "Rolling the roulette wheel...",
+                    colour = 0x05ff2f,
+                    thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn"
+                ))
+                number = random.randint(0,37)
+                sleep(1)
+                multiplier = 0
+                try:
+                    betType = int(betType)
+                    if(betType == number):              
+                        multiplier = 38
+                except:
+                    if(number == 0 or number == 37 and betType.lower() == 'green'):
+                        multiplier = 19
+                    elif (number % 2 == 0 and number != 0 and betType.lower() == 'red') or (number % 2 == 1 and number != 37 and betType.lower() == 'black'):
+                        multiplier = 2
+                    
+                if(multiplier == 0):
+                    description = f'Result: {number}. Sorry but you lost this time. Better luck next time!'
+                else:
+                    description = f'Result: {number}. Congrulations you won {bet*multiplier} credits! Please come again!'
+                    dbUser['balance'] += bet*multiplier
+                await message.edit(embed=discord.Embed(
+                    title = f"Roulette results|{user}",
+                    description = description,
+                    colour = 0x05ff2f,
+                    thumbnail="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.123rf.com%2Fphoto_10454910_computer-generated-roulette-wheel-with-numbers-and-colours.html&psig=AOvVaw3Pl7aOXMB-NQO1m8lx-0VY&ust=1599186106026000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjlqdD2y-sCFQAAAAAdAAAAABAn")
+                )
+                userbridge.Update(dbUser)
+            except:
+                await ctx.send(f"There was an error, try again later")
+                traceback.print_exc()
+    @commands.command()
+    async def flip(self, ctx, bet: int = None):
         user = ctx.message.author
-        message = discord.Embed(
-            title = "High Rollers",
-            description = "Roll a dice and climb that many steps. You can either roll one or two die. If you roll higher than the bot you win but you lose if you don't. Also try to not go over 7 If you get exactly 7 you win tenfold.",
-            colour = discord.Colour.red()
-        )
-        message.set_thumbnail(url="https://www.google.com/url?sa=i&url=https%3A%2F%2Fgilkalai.wordpress.com%2F2017%2F09%2F07%2Ftyi-30-expected-number-of-dice-throws%2F&psig=AOvVaw3s4nOmPi2bGVeA266lP17i&ust=1599270107465000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCMDQ3cmvzusCFQAAAAAdAAAAABAD")
-        rolls = []
-        botRolls = []
-
-        #roll again conditions: lower than user roll, if roll is less than 4
-        if (botRolls[0] < rolls[0] or botRolls[0] < 4):
-            botRolls[1] = random.randint(1,6) 
-        #don't roll again condition: roller 4 or higher and roll higher than user
-        if(botRolls[0] >= 4 and botRolls[0] > rolls[0]):
-            print('stop')
-        #ask if they want to roll the die again
-        #lose if your rolls is over 7
-        if(rolls[0]+rolls[1] > 7):
-            print('lose')
-        #bot is higher than you but didn't go over
-        if(rolls[0]+rolls[1] < botRolls[0] + botRolls[1] and botRolls[0]+botRolls[1] < 7):
-            print('lose')
-        #roll is the same or higher than the bot
-        if(rolls[0]+rolls[1] >= botRolls[0] + botRolls[1] and rolls[0]+rolls[1] < 7):
-            print('win')
-
-        #your roll is exactly 7
-        if(rolls[0]+rolls[1] == 7):
-            print('win')
-
-        #coinflip
-        @commands.command()
-        async def flip(self, ctx, bet: int = None):
-            user = ctx.message.author
-            multiplier = 1
-            embed = discord.Embed(
+        
+        if bet == None:
+            await ctx.send(embed=discord.Embed(
                 title = "Coin flip",
-                description = """Pick either the red or blue circle and hope that the coin lands on your side. Winning yields double your bet but losing loses everything. After every consectutive win, you can either continue and double your current wins or just keep your current winnings.""",
-                colour = discord.Colour.blue(),
+                description = "Pick either the red or blue circle and hope that the coin lands on your side. It's double or nothing",
+                colour = 0x8000ff,
                 thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
-                )
-            
-            flip = (randint(0,1))
-            message = await ctx.send(embed=embed)
+                ))
+        else:
+            try:
+                dbUser = userbridge.Get(str(user)).to_dict()
+                dbUser['balance'] -= bet
+                flip = (randint(0,1))
+                outcomeString = ''
+                if flip == 0:
+                    outcomeString += "Sorry but you lost this time."
+                else:
+                    outcomeString += "You just doubled your wage!"
+                    dbUser['balance'] += 2*bet
+                await ctx.send(embed=discord.Embed(
+                    title = f"Coin flip|{user}",
+                    description = f"Flip result: {coin[flip]} " + outcomeString,
+                    colour = 0x8000ff,
+                    thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish')
+                    )
+                userbridge.Update(dbUser)
+            except:
+                await ctx.send(f"There was an error, try again later")
+                traceback.print_exc()
+    @commands.command()
+    async def crash(self, ctx, bet: int = None, limit: int = None):
+        user = ctx.message.author
+        if(bet == None or limit == None):
+            await ctx.send(embed=discord.Embed(
+                title = "Crash",
+                description = "The multiplier will contiously rise which is how much you will get in return unless it crashs before you stop it. Max multipler is 30",
+                colour = 0x05b4ff,
+                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                ))
+        else:
+            try:
+                dbUser = userbridge.Get(str(user)).to_dict()
+                dbUser['balance'] -= bet
+                message = await ctx.send(embed=discord.Embed(
+                        title = f"Crash|{user}",
+                        description = "Starting crash...",
+                        colour = 0x05b4ff,
+                        thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                    ))
+                crasher = random.randint(1,30)
+                iterator = 0
+                sleep(1)
+                while(True):
+                    iterator += 1
+                    sleep(0.75)
+                    await message.edit(embed=discord.Embed(
+                        title = f"Crash|{user}",
+                        description = f"Multiplier: {iterator}",
+                        colour = 0x05b4ff,
+                        thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                    ))
+                    if (iterator == limit):
+                        await message.edit(embed=discord.Embed(
+                                title = f"Crash|{user}",
+                                description = f"Congrats, you've won {bet*limit} credits. It was supposed to crash at {crasher}. Please come again!",
+                                colour = 0x05b4ff,
+                                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                            ))
+                        dbUser['balance'] += bet*limit
+                        break
+                    elif (iterator > crasher):
+                        await message.edit(embed=discord.Embed(
+                                title = f"Crash|{user}",
+                                description = f"Sorry, but the crasher crashed at {crasher} this time",
+                                colour = 0x05b4ff,
+                                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish'
+                            ))
+                        break
+                userbridge.Update(dbUser)
+            except:
+                await ctx.send(f"There was an error, try again later")
+                traceback.print_exc()
 
-            message.edit(embed= discord.Embed(
-                title = "Coin flip",
-                description = f"Flip result: {random.choice(slots)}",
-                colour = discord.Colour.blue(),
-                thumbnail='https://mma.prnewswire.com/media/1096637/Royal_Canadian_Mint_The_Royal_Canadian_Mint_Launches_its_Largest.jpg?p=publish')
-                )
 def setup(bot):
     bot.add_cog(Gamble(bot))                

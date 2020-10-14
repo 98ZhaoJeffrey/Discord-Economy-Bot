@@ -30,46 +30,32 @@ async def online(ctx):
     #sends in the discord that the bot is online
     await ctx.send('We have logged in as {0.user}'.format(client))
 
-'''
-#help menu
+
 @client.command()
 async def help(ctx):
-'''
-#testing commands
-"""
-@client.command()
-async def getUser(ctx, reciever: discord.Member):
-    if(reciever in userMoney):
-        await ctx.send('{}'.format(reciever.mention))
-"""
-
-@client.command()
-async def getDict(ctx):
     user = ctx.message.author
-    await ctx.send(str(user))
+    await ctx.send(embed=discord.Embed(
+        title = "Help menu",
+        description = "() = optional\n [] = required\n\n" + 
+            "====== Account Commands ======\n\n" +
+            "`register`\n Use this to register yourself in the database\n" +
+            "`balance (other user)`\n Get the balance of your account or include the name of the person's account you want to see\n" +
+            "`transfer [amount:integer][other user]`\n Transfer some amount of money to another user\n" +
+            "`daily`\n Use this command once every 24 hours to get a small bonus\n\n" +
+            "====== Market Commands ======\n\n" + 
+            "`sell [name of item][price per unit: integer][quantity: integer]`\n Put an item that you want to sell on the market\n" +
+            "`buy [id of the item][quantity: integer]`\n Buy an item from another user\n" +
+            "`remove [id of the item]` Remove the item that you own from the market\n" +
+            "`market (keyword of item)`\n Returns a list of items owned by you or returns all items with the keyword\n\n" +
+            "====== Gambling Commands ======\n\n" +
+            "`slots (bet:integer)`\n Gives a description of the game. Give it a bet to actually play slots\n" +
+            "`roulette (bet:integer) (betType: what you want to bet on)`\n Gives a description of the game. Give it a bet and bet type (color or number) to actually play roulette\n" +
+            "`flip (bet:integer)`\n Gives a description of the game. Give it a bet to play coinflip\n" +
+            "`crash (bet:integer) (limit: integer)`\n Gives a description of the game. Give it a bet and a limit(between 1 and 30) to bail before the crash\n",
+        color=0xff6f00,
+    ))
 
-@client.command()
-async def getUser(ctx, member : discord.Member):
-     user = ctx.message.author
-     await ctx.send(f'{member.mention}: name is {type(member)} or {member}')
-     await ctx.send(f'{user.mention}: name is {type(user)} or {user}')
 
 
-@client.command()
-async def editEmbed(ctx):
-    m = discord.Embed(
-        title = "Crash",
-        description = """The multiplier will contiously rise which is how much you will get in return unless it crashs before you stop it""",
-        colour = discord.Colour.blue()
-    )
-    M = discord.Embed(
-        title = "Crashed",
-        
-        colour = discord.Colour.blue()
-    )
-    
-    message = await ctx.send(embed=m)
-    sleep(2)
-    await message.edit(embed=M)
+client.run(Your key goes here)
 
-client.run(discord bot key)
