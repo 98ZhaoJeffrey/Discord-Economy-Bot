@@ -1,17 +1,19 @@
 # Discord Economy Bot
 
-This is a discord bot that streamlines exchanges between players in the discord server with ingame items that they can trade
+A discord bot that manages the economy of a server. It can help streamline trades or setup new services. Anything is possible.
 
-## Features
+### Features
 
-The account system that registers users and lets them transfer money around. Users can earn money everyday with the dailydrop command
+Acccounts: Create an account with the ability to send and recieve money like Paypal
 
-The market holds all the user's items that they want to sell and buy
+Market: Put you services and products on the market so people can later search for it
 
-The casino hosts a couple minigames such as roulette and slots for the user to earn money
+Casino: Feeling lucky> Try your lucky a few casino games and win big!
 
-## Technology used
+### Technology used
 
-Python: Discord.py API
-Python: SQLaLchemy
-SQL: MYSQL database
+Discord.py API
+
+SQLAlchemy ORM
+
+MySQL server
