@@ -8,7 +8,7 @@ Acccounts: Create an account with the ability to send and recieve money like Pay
 
 Market: Put you services and products on the market so people can later search for it
 
-Casino: Feeling lucky> Try your lucky a few casino games and win big!
+Casino: Feeling lucky? Try your lucky a few casino games and win big!
 
 ### Technology used
 
